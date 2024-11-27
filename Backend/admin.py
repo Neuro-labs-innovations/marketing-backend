@@ -2,8 +2,6 @@ from fastapi import FastAPI, HTTPException, APIRouter
 from pydantic import BaseModel
 from passlib.context import CryptContext
 from motor.motor_asyncio import AsyncIOMotorClient
-import logging
-
 
 router = APIRouter()
 
@@ -64,18 +62,13 @@ async def admin_login(login: AdminLoginRequest):
         
         # Check if the admin exists
         if not admin:
-            logger.warning(f"Login attempt with non-existent email: {login.email}")
             raise HTTPException(status_code=401, detail="Invalid email or password")
         
         # Verify the password
         if not verify_password(login.password, admin['password']):
-            logger.warning(f"Login attempt with incorrect password for email: {login.email}")
             raise HTTPException(status_code=401, detail="Invalid email or password")
         
         # If successful, return a success message
         return {"message": "Login successful"}
     except Exception as e:
-        logger.error(f"Error during login: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
-
-
