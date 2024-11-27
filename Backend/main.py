@@ -21,8 +21,9 @@ app.include_router(user.router)
 app.include_router(storeRecord.router)
 app.include_router(adminDisplay.router)
 
-client = MongoClient('mongodb+srv://marketing:Neurolabs%40123@cluster0.wtf2o.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
-db = client["Marketing"]
+
+client = AsyncIOMotorClient('mongodb+srv://marketing:Neurolabs%40123@cluster0.wtf2o.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
+db = client["marketing"]
 
 
 # Add CORS middleware
