@@ -1,3 +1,4 @@
+
 from fastapi import FastAPI, HTTPException, APIRouter
 from pydantic import BaseModel
 from passlib.context import CryptContext
@@ -5,7 +6,6 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 router = APIRouter()
 
-# MongoDB async connection setup using Motor
 client = AsyncIOMotorClient('mongodb+srv://marketing:Neurolabs%40123@cluster0.wtf2o.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
 db = client["marketing"]
 collection = db["User_credentials"]
@@ -77,4 +77,6 @@ async def user_login(login: UserLoginRequest):
         return {"message": "Login successful"}
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
 
