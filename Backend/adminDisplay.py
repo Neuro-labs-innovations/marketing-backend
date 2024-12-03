@@ -36,20 +36,18 @@ class RecordResponse(BaseModel):
         orm_mode = True
 
 
-def ensure_directories_exist():
-    os.makedirs("uploads/images", exist_ok=True)
-    os.makedirs("uploads/visiting_cards", exist_ok=True)
-
-ensure_directories_exist()
+# The directory creation code is now removed as it is not needed in a read-only filesystem environment
+# Removed the ensure_directories_exist function
 
 @router.get("/records/", response_model=List[RecordResponse])
 async def get_records():
     try:
-       
+        # Fetch the records from the MongoDB collection
         records = await collection.find().sort("serial_number", -1).to_list(length=100)
         response_data = []
 
         for record in records:
+            # Prepare the data to return
             record_data = {
                 "serial_number": record["serial_number"],  
                 "user_name": record.get('user_name', ''),
@@ -66,12 +64,13 @@ async def get_records():
         return JSONResponse(content=response_data)
 
     except Exception as e:
+        # Handle any errors and return a 500 internal server error
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @router.get("/records/{serial_number}", response_model=RecordResponse)
 async def get_record(serial_number: int):
     try:
-       
+        # Fetch a single record by serial_number
         record = await collection.find_one({"serial_number": serial_number})
         if record:
             return {
@@ -94,4 +93,5 @@ async def get_record(serial_number: int):
             raise HTTPException(status_code=404, detail="Record not found")
     
     except Exception as e:
+        # Handle any errors and return a 500 internal server error
         raise HTTPException(status_code=500, detail="Internal Server Error")
