@@ -1,5 +1,3 @@
-
-
 import os
 import io
 import base64
@@ -20,8 +18,6 @@ client = AsyncIOMotorClient('mongodb+srv://marketing:Neurolabs%40123@cluster0.wt
 
 db = client["marketing"]
 collection = db["Record"]
-
-
 
 # Google Drive setup using Service Account
 SCOPES = ['https://www.googleapis.com/auth/drive.file']
@@ -117,11 +113,11 @@ async def submit_form(
     visiting_card: Optional[UploadFile] = File(None)
 ):
     try:
-    
+        # Get the last serial number from the database
         last_record = await collection.find_one(sort=[("serial_number", -1)])
         serial_number = last_record["serial_number"] + 1 if last_record else 1
 
-       
+        # Prepare form data
         form_data = {
             "user_name": user_name,
             "company_name": company_name,
@@ -136,23 +132,23 @@ async def submit_form(
             "serial_number": serial_number,
         }
 
-          
+        # Google Drive folder IDs
         images_folder_id = '1vQ9TQem0HCyrVFT7e5XUYYQiLz2uSFzK'
         visiting_card_folder_id = '1iknb6X9kEO0Q-CML9oSm9t-29DwkzcU6'
 
-    
+        # Upload image to Google Drive if provided
         image_path = None
         if image_upload:
             image_path = await upload_file_to_drive(image_upload, images_folder_id)
             form_data["image_path"] = image_path
 
-    
+        # Upload visiting card to Google Drive if provided
         visiting_card_path = None
         if visiting_card:
             visiting_card_path = await upload_file_to_drive(visiting_card, visiting_card_folder_id)
             form_data["visiting_card_path"] = visiting_card_path
 
-
+        # Insert form data into MongoDB
         result = await collection.insert_one(form_data)
 
         return {
@@ -161,13 +157,9 @@ async def submit_form(
             "serial_number": serial_number,
             "image_path": image_path,
             "visiting_card_path": visiting_card_path,
-            "contact_number":contact_number
+            "contact_number": contact_number
         }
 
     except Exception as e:
         print(f"Error submitting form: {str(e)}")
         raise HTTPException(status_code=500, detail=f"An error occurred while processing the request: {str(e)}")
-
-
-
-
